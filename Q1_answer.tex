@@ -1,0 +1,57 @@
+\chapter*{Question 1}
+\addcontentsline{toc}{chapter}{Question 1}
+
+We need a sensor device to track assets (vehicles and animals) in two wildlife parks:
+
+\begin{itemize}
+  \item \textbf{Knuthenborg Safari Park}, Denmark
+  \item \textbf{Mpala Research Center}, Kenya
+\end{itemize}
+
+% - Knuthenborg: 1,600 acres, Denmark (lat/lon 54.811358, 11.5082552)
+% - Mpala Research Center: 48,000 acres, Kenya (lat/lon 0.2882139, 36.9017593)
+The parks are large, and the devices must be able to track the location of the assets with a high degree of accuracy. The devices will be used to monitor the animals' movements and behavior, as well as to track the vehicles used for research and conservation efforts.
+The parks are located in different parts of the world, and the devices must be able to operate in different environments. The devices must be able to withstand harsh weather conditions, including extreme temperatures, rain, and dust. The devices must also be able to operate in remote areas with limited access to power and communication networks.
+
+\subsubsection{Functional requirements}
+% The devices must be able to measure acceleration, particulate matter concentration, and track location. The devices must also be able to record data every hour and preferably report it in real-time.
+
+\begin{itemize}
+  \item Location tracking (GPS)
+  \item Measure acceleration (motion state)
+  \item Measure particulate matter concentration
+  \item Record data every hour (preferably real-time reporting)
+\end{itemize}
+
+\subsubsection{Non-functional requirements}
+The devices must have an accuracy of at least 500 meters. Apart from that we need to consider environmental conditions, battery life, size, and cost.
+
+Given that the devices will be used in wildlife parks, they must be able to withstand extreme temperatures, rain, and dust. Knuthenborg Safari Park is located in Denmark, where temperatures in worst case can drop to -20 degrees Celsius in winter and have hot humid summers. Mpala Research Center is located in Kenya, where temperatures can reach close to 40 degrees Celsius in summer. 
+
+Because the device needs to be able to track animals as many types of animals are present in the parks, the size of the device must be small enough to be attached to the animals without causing discomfort. 
+
+\begin{itemize}
+  \item Accuracy: $\geq$500 m or more
+  \item Withstand extreme temperatures (e.g., -20 to 40 degrees Celsius)
+  \item Withstand rain and dust (IP67 or better)
+  \item Battery life: 0.5 years or more
+  \item Track animals and vehicles
+  \item Size has to be Small
+  \item Cost: $\mathdollar100$ or less
+\end{itemize}
+
+
+\subsubsection{Device selection}
+
+\textbf{Acceleration}
+For the acceleration we can would want to use a accelerometer. An accelerometer is small and does not consume much power. It can measure the acceleration of the device in three dimensions so vertical movement of birds can be detected too if needed. An example of a sensor could be the ADXL345, which measures at 3mm x 5mm x 1mm, has an Ultra-low power consumption down to 2 $\mu$Am, can measure acceleration in three dimensions. It has a range of up to +/-16g and can operate in temperatures from -40 to +85 degrees Celsius.
+
+\textbf{Particulate matter concentration}
+For the particulate matter concentration we can use a laser particle counter. The laser particle counter is a small device that can measure the concentration of particulate matter in the air. It uses a laser to detect particles in the air and can provide real-time data on the concentration of particulate matter.
+
+\textbf{Location tracking}
+% For Knuthenborg Safari Park we might want to use a GSM module. The GSM module is a small device that can provide real-time location data using the GSM network. It uses cellular signals to determine the location of the device and can provide accurate location data even in remote areas. An example of a GSM module is the SIM800L, which has a size of 25mm x 23mm x 3mm, consumes 20mA at 3.7V, and has an accuracy of 500m.
+For the location tracking we can use a GPS module. The GPS module is a small device that can provide real-time location data. It uses satellite signals to determine the location of the device and can provide accurate location data even in remote areas. An example of a GPS module is the u-blox NEO-6M
+%, which has a size of 16mm x 12mm x 2.5mm, consumes 50mA at 3.3V, and has an accuracy of 2.5m.
+% https://github.com/HikariBoy/TTGO-Tbeam-Ultra-Low-Power-Modification
+% ~192 mA and ~2.25 mA in sleep mode.
