@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{report}
+\documentclass[a4paper,12pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern} % Added for better font support
 \usepackage{graphicx} % Added for \includegraphics
@@ -6,39 +6,39 @@
 \usepackage{bookmark} % Added to fix 'rerunfilecheck' warning
 \usepackage{markdown} % Added for \markdownInput
 \usepackage{xcolor} % Added for \textcolor
+\usepackage{biblatex} % Added for bibliography
+
+\addbibresource{references.bib} % Added for bibliography
 
 \begin{document} % Added document environment
 
 \begin{titlepage}
-
-\centering
-\includegraphics[width=\textwidth]{pictures//ITU_logo_en.jpg}
-	\textcolor{black}{\rule{\linewidth}{1pt}} \par
-     {\Huge\bfseries \textcolor{black}{Internet Of Things Report}\par} 
-	\vspace{1pt} {Master of Science in Computer Science \\ 
-	IT-University of Copenhagen \par}
-	\textcolor{black}{\rule{\linewidth}{1pt}} \par
-	\vspace*{0.25cm}
- \textbf{Course Name:} Internet of Things\\
-\textbf{Course Code:} KSINTHI1KU\\
-\textbf{Submission Date:} 11/05/2025\\
- 
-\vspace*{0.25cm}
- 
-\begin{minipage}{0.70\textwidth}
-    \begin{flushleft} \large
-        \textbf{Author}\\
-        Patrick Bohn Matthiesen 
-    \end{flushleft}
+    \centering
+    \includegraphics[width=\textwidth]{pictures//ITU_logo_en.jpg}
+        \textcolor{black}{\rule{\linewidth}{1pt}} \par
+        {\Huge\bfseries \textcolor{black}{Internet Of Things Report}\par} 
+        \vspace{1pt} {Master of Science in Computer Science \\ 
+        IT-University of Copenhagen \par}
+        \textcolor{black}{\rule{\linewidth}{1pt}} \par
+        \vspace*{0.25cm}
+    \textbf{Course Name:} Internet of Things\\
+    \textbf{Course Code:} KSINTHI1KU\\
+    \textbf{Submission Date:} 11/05/2025\\
+    
+    \vspace*{0.25cm}
+    
+    \begin{minipage}{0.70\textwidth}
+        \begin{flushleft} \large
+            \textbf{Author}\\
+            Patrick Bohn Matthiesen 
+        \end{flushleft}
+        \end{minipage}
+        \begin{minipage}{0.25\textwidth}
+        \begin{flushright} \large
+            \textbf{Email}\\
+            pmat@itu.dk
+        \end{flushright}
     \end{minipage}
-    \begin{minipage}{0.25\textwidth}
-    \begin{flushright} \large
-        \textbf{Email}\\
-        pmat@itu.dk
-    \end{flushright}
-\end{minipage}
-
-
 \end{titlepage}
 
 \tableofcontents % Added table of contents
@@ -52,5 +52,9 @@
 
 \input{Q3_answer.tex}
 \cleardoublepage{}
+
+
+\section{Bibliography}
+\printbibliography[heading=none]
 
 \end{document} % Added document environment

@@ -1,6 +1,15 @@
-\contentsline {chapter}{Question 1}{2}{chapter*.2}%
-\contentsline {subsubsection}{Functional requirements}{2}{section*.3}%
-\contentsline {subsubsection}{Non-functional requirements}{2}{section*.4}%
-\contentsline {subsubsection}{Device selection}{3}{section*.5}%
-\contentsline {chapter}{Question 2}{4}{chapter*.6}%
-\contentsline {chapter}{Question 3}{5}{chapter*.7}%
+\contentsline {section}{\numberline {1}Q1 --- Networked Sensor Device for tracking}{2}{section.1}%
+\contentsline {section}{Q1 --- Networked Sensor Device for tracking}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Functional requirements}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Non-functional requirements}{2}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Device selection}{3}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Power supply}{4}{subsubsection.1.2.2}%
+\contentsline {section}{\numberline {2}Question 2}{5}{section.2}%
+\contentsline {section}{Question 2}{5}{section.2}%
+\contentsline {section}{\numberline {3}Question 3}{6}{section.3}%
+\contentsline {section}{Question 3}{6}{section.3}%
+\contentsline {section}{\numberline {4}Sensor precision VS sensor accuracy}{6}{section.4}%
+\contentsline {subsection}{\numberline {4.1}MQTT and it's role in IoT}{6}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}All relevant layers of Wi-Fi, Bluetooth, LoRa and LoRaWan and their use in IoT}{6}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Security features of the LoRaWAN protocol}{7}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Bibliography}{8}{section.5}%

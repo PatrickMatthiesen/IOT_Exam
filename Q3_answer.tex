@@ -1,4 +1,37 @@
-\chapter*{Question 3}
-\addcontentsline{toc}{chapter}{Question 3}
-% Please add your answer to Question 3 here.
-% You can add text, figures, tables, etc.
+\section{Question 3}
+\addcontentsline{toc}{section}{Question 3}
+% (20%)
+
+\section{Sensor precision VS sensor accuracy}
+% A) What is the difference between sensor precision and sensor accuracy?
+
+Sensor \textbf{precision} refers to the degree to which repeated measurements under unchanged conditions show the same results. In other words, it indicates how consistent the measurements are. For example, if a sensor consistently measures the same value for a given input, it is considered precise.
+
+Sensor \textbf{accuracy}, on the other hand, refers to how close a measured value is to the true value or the actual value of the quantity being measured. A sensor can be precise but not accurate if it consistently gives the same incorrect measurement. Conversely, a sensor can be accurate but not precise if it gives varying measurements that are close to the true value.
+
+\subsection{MQTT and it's role in IoT}
+% B) What is MQTT? What role does it play in IoT?
+
+MQTT (Message Queuing Telemetry Transport) is a lightweight messaging protocol designed for low-bandwidth, high-latency, on unreliable networks\cite{mqtt_org}. 
+It is a publish-subscribe messaging protocol that theoretically can run over any transport protocol that ensures ordered, lossless, bi-directional connections. However, it is most commonly used over TCP/IP.
+
+MQTT plays a crucial role in IoT by providing efficient communication for resource-constrained devices. Its lightweight design minimizes bandwidth usage and power consumption, making it ideal for battery-operated sensors and actuators. The protocol's small header size and minimal network overhead allow for effective operation on unreliable networks with limited bandwidth. MQTT's quality of service options ensure message delivery even in unstable connections, while its last will feature helps detect device disconnections. These characteristics make MQTT particularly valuable in situations like smart home applications, where it reduces network noise and enables reliable communication between numerous low-power devices.
+
+\subsection{All relevant layers of Wi-Fi, Bluetooth, LoRa and LoRaWan and their use in IoT}
+% C) Characterize on all relevant layers Wi-Fi, Bluetooth, LoRa and LoRaWan and
+% their use in IoT.
+
+WiFi and Bluetooth are relevant for the OSI model layers 1 (physical) and 2 (data link), while LoRa and LoRaWAN are relevant for the OSI model layers 1, 2, and 3 (network).
+
+WiFi and Bluetooth operate in the 2.4 GHz frequency band which is the the physical network layer. The data link layer is responsible for the MAC protocol, which is used to control access to the physical medium. Bluetooth uses a frequency-hopping spread spectrum (FHSS) which also is belongs to the data link layer\cite{bluetooth_protocol,wifi_osi}.
+
+LoRa and LoRaWAN operate in the sub-GHz frequency bands (e.g., 433 MHz, 868 MHz, 915 MHz) which is the physical network layer. The data link layer is responsible for the MAC protocol, which is used to control access to the physical medium. LoRa uses a chirp spread spectrum (CSS) which also is belongs to the data link layer. The network layer is responsible for routing packets between devices and gateways.
+
+WiFi and Bluetooth are short-range communication technologies, while LoRa and LoRaWAN are long-range communication technologies.
+
+They are used for high-bandwidth applications, such as video streaming and file transfer. WiFi has a range of up to 100 meters, while Bluetooth has a range of up to 10 meters.
+
+\subsection{Security features of the LoRaWAN protocol}
+% D) Name and explain security features of the LoRaWAN protocol.
+
+
