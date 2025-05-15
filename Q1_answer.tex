@@ -41,28 +41,42 @@ Because the device needs to be able to track animals as many types of animals ar
 \end{itemize}
 
 
-\subsubsection{Device selection}
+\subsection{Device selection}
 
-\textbf{Acceleration}
-For the acceleration we can would want to use a accelerometer. An accelerometer is small and does not consume much power. It can measure the acceleration of the device in three dimensions so vertical movement of birds can be detected too if needed. An example of a sensor could be the ADXL345, which measures at 3mm x 5mm x 1mm, has an Ultra-low power consumption down to 2 $\mu$Am, can measure acceleration in three dimensions. It has a range of up to +/-16g and can operate in temperatures from -40 to +85 degrees Celsius.
+\subsection{Acceleration}
+For the acceleration we can would want to use a accelerometer. An example of a sensor could be the ADXL345, which measures at 3mm x 5mm x 1mm, has a range of up to +/-16g, and can operate in temperatures from -40 to +85 degrees Celsius. ADXL345 can measure the acceleration of the device in three dimensions so vertical movement of birds can be detected too if needed. It has a startup of 1.4ms, with a resolution of 13 bits, typically operates at 2.5V, and has a draw of 23$\mu$A in normal operation and 0.1$\mu$A in standby mode.
 
-\textbf{Particulate matter concentration}
+\subsection{Particulate matter concentration}
 For the particulate matter concentration we can use a laser particle counter. The laser particle counter is a small device that can measure the concentration of particulate matter in the air. It uses a laser to detect particles in the air and can provide real-time data on the concentration of particulate matter.
 
-\textbf{Location tracking and Embedded board}
-For the location tracking we can use a GPS module. The GPS module is a small device that can provide real-time location data. It uses satellite signals to determine the location of the device and can provide accurate location data even in remote areas, like Mpala. An example of a GPS module is the U-Blox NEO-6M.
+% Bosh BMV080, 4.2 mm x 3 mm x 3.5 mm excluding flex PCB connector, Supply voltage 1.8 to 3.3 v, Start-up time 1.2 sec, -10°C to +40°C operating temperature range, Sleep current <30 $\mu$A, Average total current <68mA @ 0.97 Hz ODR
+% https://www.mouser.dk/pdfDocs/bst-bmv080-fl000.pdf
 
-For the embedded board we could consider using something existing like the TTGO T-Beam. The TTGO T-Beam is a small, low-power embedded board that can be used for IoT applications. It has a built-in GPS module and LoRaWAN connectivity, making it ideal for tracking applications. The board is small (16mm x 12mm x 2.5mm) and has a low power consumption of 50mA at 3.3V. It also has an accuracy of 2.5m, which is sufficient for our needs.
-%, which has a size of 16mm x 12mm x 2.5mm, consumes 50mA at 3.3V, and has an accuracy of 2.5m.
-% https://github.com/HikariBoy/TTGO-Tbeam-Ultra-Low-Power-Modification
-% ~192 mA and ~2.25 mA in sleep mode.
-% Options:
-% - Custom LoRaWAN network
-% - Mesh t a s t i c
-% - Bluetooth/Wi-Fi
+\subsection{Location tracking}
+For the location tracking, we can use a GPS module. The GPS module is a small device that provides real-time location data by using satellite signals to determine the device's position. It offers accurate tracking even in remote areas like Mpala. An example of such a module is the u-blox MIA-M10, which measures just 4.5 mm x 4.5 mm x 1 mm. It supports our needs with a temperature range from -40°C to +85°C, has a cold start time of about 30 seconds, and has a positional accuracy of up to 2.5 meters. It has power consumption, drawing approximately 22mA at 3.3V during continuous tracking. However, with power supplied to the VBAT pin, it can retain satellite data and significantly reduce startup time to 1-10 seconds, using less energy per fix. In deep sleep mode with VBAT maintained, the module draws as little as 1$\mu$A.
+
+\subsubsection{Microcontroller and communication}
+Given that we want to send data over a long distance, we can use LoRaWAN for communication. An example of a microcontroller that supports LoRaWAN is a STM32WLE5 module like the RAK3172 STM32WLE5. The module % todo finish this
+
+%https://store.rakwireless.com/products/wisduo-lpwan-module-rak3172?variant=44068554473670
 
 \subsubsection{Power supply}
-The device will mainly be powered by a rechargeable lithium-ion battery. The battery should be able to provide power for at least 0.5 years of operation. 
+The device will be powered by a rechargeable lithium-ion battery. The battery should be able to provide power for at least 0.5 years of operation. 
+
+To know how much power we need, we can calculate the power consumption of the device. This will be a naive calculation, as we have not yet tested real-world power consumption, but it will give us an idea of the power requirements.
+
+We know we need to send data every hour, and we can assume that the device will be in sleep mode most of the time to conserve power.
+We assume that the GPS module will be active for 10 seconds every hour to get a location fix, the accelerometer will be active for 1 second every hour to measure acceleration, and the particulate matter sensor will be active for 1 second every hour to measure particulate matter concentration.
+Assuming the following power consumption:
+\begin{itemize}
+  \item GPS module: 22mA for 10 seconds every hour
+  \item Accelerometer: 23$\mu$A for 1 second every hour
+  \item Particulate matter sensor: 68mA for 1 second every hour
+  \item Microcontroller: 10mA for 1 second every hour
+  \item LoRaWAN transmission: 20mA for 1 second every hour
+  \item Sleep mode: 1$\mu$A for $(60*60) - 10 - (1*4) \simeq 3586$ seconds every hour
+\end{itemize}
+
 
 
 For additional power supply, we can consider energy harvesting. 
