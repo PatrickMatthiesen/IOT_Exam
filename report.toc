@@ -10,6 +10,6 @@
 \contentsline {section}{Question 3}{6}{section.3}%
 \contentsline {section}{\numberline {4}Sensor precision VS sensor accuracy}{6}{section.4}%
 \contentsline {subsection}{\numberline {4.1}MQTT and it's role in IoT}{6}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}All relevant layers of Wi-Fi, Bluetooth, LoRa and LoRaWan and their use in IoT}{6}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.2}All relevant layers of Wi-Fi, Bluetooth, LoRa and LoRaWan and their use in IoT}{7}{subsection.4.2}%
 \contentsline {subsection}{\numberline {4.3}Security features of the LoRaWAN protocol}{7}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Bibliography}{8}{section.5}%
+\contentsline {section}{\numberline {5}Bibliography}{9}{section.5}%
