@@ -48,7 +48,6 @@ For the acceleration we can would want to use a accelerometer. An example of a s
 
 \subsection{Particulate matter concentration}
 For the particulate matter concentration, we can use the Bosch BMV080 laser particle sensor\cite{bmv080}. This compact sensor measures only 4.2 mm x 3 mm x 3.5 mm, making it ideal for our size constraints. A key advantage of the BMV080 is its fan-less. Unlike traditional particulate matter sensors that require fans to draw air through the sensing chamber, the BMV080 is able to measure particulate matter concentration without a fan. This is would be beneficial for our use case, as it reduces the risk of dust buildup on the sensor. Dust is especially problematic in wildlife environments like the parks that we want to deploy the devices in, as it can clog the fan and affect the sensor's performance. The sensor operates with a supply voltage of 1.8 to 3.3 V and has a quick start-up time of 1.2 seconds. It can function in temperatures ranging from -15°C to +65°C, which covers our operational requirements. The BMV080 is has a sleep current of less than 3$\mu$A and an average total current of less than 68mA at 0.97Hz output data rate.
-The datasheet conveniently also specifies that in duty cycling mode that we will use, then the sensor will use about 0.6mW each hour. 
 
 %A restriction to keep in mind is the sensor requires a host that is ESP32, Cortex-M4 or Raspberry Pi Arm
 
@@ -82,8 +81,7 @@ We need to send data every hour, and the device will remain in sleep mode most o
     \item Accelerometer activates first (1 second) due to its quick startup time
     \item Particulate matter sensor follows (1 second) 
     \item GPS module activates last (10 seconds) with warm start optimization when possible
-  \end{itemize}
-  \item \textbf{Data processing}: The microcontroller processes collected data (2 seconds)
+  \end{itemize}  \item \textbf{Data processing}: The microcontroller processes collected data (20 seconds)
   \item \textbf{Transmission}: Data is packaged and transmitted via LoRaWAN (1 second)
   \item \textbf{Sleep mode}: The device returns to deep sleep until the next hourly cycle
 \end{enumerate}
@@ -126,7 +124,7 @@ Based on this calculation, we can select a 1000mAh lithium-ion battery, which is
 
 \subsubsection{Energy harvesting}
 For additional power supply, we can consider energy harvesting.
-A small solar panel rated at approximately 0.5W (measuring around 50mm × 50mm) would be sufficient to recharge the battery during daylight hours. With an average of just 1-2 hours of effective sunlight per day, this would provide enough additional energy to significantly extend the battery life beyond the required 6 months.
+A small solar panel could would be sufficient to recharge the battery during daylight hours.
 
 A potential issue would be that the device is not always exposed to sunlight, especially in the case of animals that might cover the cell from the sun with their body, fur or dirt. However, the generously-sized battery should compensate for periods without solar charging. The combination of a 1000mAh battery with solar recharging would likely enable the device to operate for well over a year in most deployment scenarios, and potentially indefinitely in locations with good sun exposure.
 
@@ -144,9 +142,9 @@ All the components we have selected would cover and area of about:
   \item Solar panel: 50mm x 50mm x 2mm (assuming a small solar panel)
 \end{itemize}
 
-The total area of the components would be approximately:
+The total volume of the components would be approximately:
 \begin{align*}
-\text{Total area} &= (3 \times 5 \times 1) + (4.2 \times 3 \times 3.5) + (4.5 \times 4.5 \times 1) + (15 \times 15.5 \times 3.5) + (30 \times 20 \times 5) + (50 \times 50 \times 2)\\
+\text{Total volume} &= (3 \times 5 \times 1) + (4.2 \times 3 \times 3.5) + (4.5 \times 4.5 \times 1) + (15 \times 15.5 \times 3.5) + (30 \times 20 \times 5) + (50 \times 50 \times 2)\\
 &= 15 + 44.1 + 20.25 + 817.5 + 3000 + 5000 \\
 &= 8856.85 \text{ mm}^3
 \end{align*}
@@ -167,7 +165,7 @@ The device will transmit the following data in each hourly LoRaWAN payload:
 
 The total payload size is 23 bytes per transmission. This compact format balances information richness with bandwidth efficiency, critical for LoRaWAN networks where payload size directly impacts transmission time and power consumption. The small payload allows us to transmit using the highest data rate possible for the given range conditions, further optimizing power consumption during transmission.
 
-For the network architecture, we would deploy LoRaWAN gateways at strategic locations throughout both wildlife parks. Given the size of Knuthenborg Safari Park (1,600 acres), approximately 2-3 gateways would provide sufficient coverage. For the much larger Mpala Research Center (48,000 acres), a network of 10-15 gateways positioned at elevated locations would be required to ensure continuous connectivity.
+For the network architecture, we would deploy LoRaWAN gateways at strategic locations throughout both wildlife parks. Given the size of Knuthenborg Safari Park (1,600 acres), approximately 3-5 gateways would provide sufficient coverage. For the much larger Mpala Research Center (48,000 acres), a network of 10-15 gateways positioned at elevated locations would be required to ensure continuous connectivity.
 
 \subsection{Design Trade-offs}
 The design balances several competing factors:

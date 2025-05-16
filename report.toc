@@ -11,7 +11,7 @@
 \contentsline {subsubsection}{\numberline {1.8.1}Energy harvesting}{7}{subsubsection.1.8.1}%
 \contentsline {subsection}{\numberline {1.9}Device enclosure}{7}{subsection.1.9}%
 \contentsline {subsection}{\numberline {1.10}Payload Format and Transmission Strategy}{8}{subsection.1.10}%
-\contentsline {subsection}{\numberline {1.11}Design Trade-offs}{9}{subsection.1.11}%
+\contentsline {subsection}{\numberline {1.11}Design Trade-offs}{8}{subsection.1.11}%
 \contentsline {section}{\numberline {2}Question 2 --- Wildlife Monitoring System}{10}{section.2}%
 \contentsline {section}{Question 2 --- Wildlife Monitoring System}{10}{section.2}%
 \contentsline {subsection}{\numberline {2.1}System Architecture and Data Flow}{10}{subsection.2.1}%
