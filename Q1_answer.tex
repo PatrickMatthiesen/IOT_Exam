@@ -11,7 +11,7 @@ We need a sensor device to track assets (vehicles and animals) in two wildlife p
 % - Knuthenborg: 1,600 acres, Denmark (Lat/Lon 54.811358, 11.5082552)
 % - Mpala Research Center: 48,000 acres, Kenya (Lat/Lon 0.2882139, 36.9017593)
 The parks are large, and the devices must be able to track the location of the assets with a high degree of accuracy. The devices will be used to monitor the animals' movements and behavior, as well as to track the vehicles used for research and conservation efforts.
-The parks are located in different parts of the world, and the devices must be able to operate in different environments. The devices must be able to withstand harsh weather conditions, including extreme temperatures, rain, and dust. The devices must also be able to operate in remote areas with limited access to power and communication networks.
+The parks are located in different parts of the world, and the devices must be able to operate in different environments. The devices must be able to withstand harsh weather conditions, including extreme temperatures, rain, and dust. The devices must also be able to operate in remote areas with limited access to power and communication networks.  tun
 
 \subsection{Functional requirements}
 % The devices must be able to measure acceleration, particulate matter concentration, and track location. The devices must also be able to record data every hour and preferably report it in real-time.
@@ -44,44 +44,70 @@ Because the device needs to be able to track animals as many types of animals ar
 \subsection{Device selection}
 
 \subsection{Acceleration}
-For the acceleration we can would want to use a accelerometer. An example of a sensor could be the ADXL345, which measures at 3mm x 5mm x 1mm, has a range of up to +/-16g, and can operate in temperatures from -40 to +85 degrees Celsius. ADXL345 can measure the acceleration of the device in three dimensions so vertical movement of birds can be detected too if needed. It has a startup of 1.4ms, with a resolution of 13 bits, typically operates at 2.5V, and has a draw of 23$\mu$A in normal operation and 0.1$\mu$A in standby mode.
+For the acceleration we can would want to use a accelerometer. An example of a sensor could be the ADXL345, which measures at 3mm x 5mm x 1mm, has a range of up to +/-16g, and can operate in temperatures from -40 to +85 degrees Celsius. ADXL345 can measure the acceleration of the device in three dimensions so vertical movement of birds can be detected too if needed. It has a startup of 1.4ms, with a resolution of 13 bits, typically operates at 2.5V, and has a draw of 23$\mu$A in normal operation and 0.1$\mu$A in standby mode\cite{adxl345}.
 
 \subsection{Particulate matter concentration}
-For the particulate matter concentration we can use a laser particle counter. The laser particle counter is a small device that can measure the concentration of particulate matter in the air. It uses a laser to detect particles in the air and can provide real-time data on the concentration of particulate matter.
+For the particulate matter concentration, we can use the Bosch BMV080 laser particle sensor. This compact sensor measures only 4.2 mm x 3 mm x 3.5 mm, making it ideal for our size constraints. A key advantage of the BMV080 is its fan-less. Unlike traditional particulate matter sensors that require fans to draw air through the sensing chamber, the BMV080 is able to measure particulate matter concentration without a fan. This is would be beneficial for our use case, as it reduces the risk of dust buildup on the sensor. Dust is especially problematic in wildlife environments like the parks that we want to deploy the devices in, as it can clog the fan and affect the sensor's performance. The sensor operates with a supply voltage of 1.8 to 3.3 V and has a quick start-up time of 1.2 seconds. It can function in temperatures ranging from -15°C to +65°C, which covers our operational requirements. The BMV080 is has a sleep current of less than 3$\mu$A and an average total current of less than 68mA at 0.97Hz output data rate.
+The datasheet conveniently also specifies that in duty cycling mode that we will use, then the sensor will use about 0.6mW each hour. 
 
-% Bosh BMV080, 4.2 mm x 3 mm x 3.5 mm excluding flex PCB connector, Supply voltage 1.8 to 3.3 v, Start-up time 1.2 sec, -10°C to +40°C operating temperature range, Sleep current <30 $\mu$A, Average total current <68mA @ 0.97 Hz ODR
-% https://www.mouser.dk/pdfDocs/bst-bmv080-fl000.pdf
+%A restriction to keep in mind is the sensor requires a host that is ESP32, Cortex-M4 or Raspberry Pi Arm
 
 \subsection{Location tracking}
 For the location tracking, we can use a GPS module. The GPS module is a small device that provides real-time location data by using satellite signals to determine the device's position. It offers accurate tracking even in remote areas like Mpala. An example of such a module is the u-blox MIA-M10, which measures just 4.5 mm x 4.5 mm x 1 mm. It supports our needs with a temperature range from -40°C to +85°C, has a cold start time of about 30 seconds, and has a positional accuracy of up to 2.5 meters. It has power consumption, drawing approximately 22mA at 3.3V during continuous tracking. However, with power supplied to the VBAT pin, it can retain satellite data and significantly reduce startup time to 1-10 seconds, using less energy per fix. In deep sleep mode with VBAT maintained, the module draws as little as 1$\mu$A.
 
 \subsubsection{Microcontroller and communication}
-Given that we want to send data over a long distance, we can use LoRaWAN for communication. An example of a microcontroller that supports LoRaWAN is a STM32WLE5 module like the RAK3172 STM32WLE5. The module % todo finish this
+Given that we want to send data over a long distance, we can use LoRaWAN for communication. An example of a microcontroller that supports LoRaWAN is the RAK3172 module based on the STM32WLE5 chip\cite{rak3172_datasheet}. The module has an ARM Cortex-M4 core, which fits the host requirement for the Bosch BMV080 sensor. The RAK3172 measuring only 15 mm x 15.5 mm x 3.5 mm, making it suitable for our small-size requirements.
 
-%https://store.rakwireless.com/products/wisduo-lpwan-module-rak3172?variant=44068554473670
+The module supports a temperature range from -40 °C to +85 °C, which is ideal for the extreme conditions in both wildlife parks. It operates with a supply voltage of 2.0 to 3.6 V, compatible with our other components. The module provides multiple I/O ports including UART, SPI, ADC, GPIO and most notably I2C which many of the sensors require.
+
+For communication, the RAK3172 supports frequency ranges from 150 MHz to 960 MHz with a bandwidth from 7.8 kHz to 500 kHz, appropriate for long-distance, low-power transmission required in large wildlife parks. It supports multiple regional bands including EU433, CN470, RU864, IN865, EU868, AU915, US915, KR920, and AS923, making it deployable in both Denmark and Kenya with the appropriate regional settings.
+
+A plus for the RAK3172 is the low power consumption of just 1.69 $\mu$A in sleep mode, which is critical for our battery life requirements. The module includes 256 KB flash memory with ECC (Error Correction Code) and 64 KB RAM, providing sufficient storage for our sensor data and communication protocols.
+
+For our application, we would use this microcontroller to collect data from the sensors (GPS, accelerometer, and particulate matter sensor), process the data, and transmit it over LoRaWAN to a base station.
 
 \subsubsection{Power supply}
-The device will be powered by a rechargeable lithium-ion battery. The battery should be able to provide power for at least 0.5 years of operation. 
+The device will be powered by a rechargeable lithium-ion battery. The battery should be able to provide power for at least 0.5 years of operation.
 
 To know how much power we need, we can calculate the power consumption of the device. This will be a naive calculation, as we have not yet tested real-world power consumption, but it will give us an idea of the power requirements.
 
 We know we need to send data every hour, and we can assume that the device will be in sleep mode most of the time to conserve power.
 We assume that the GPS module will be active for 10 seconds every hour to get a location fix, the accelerometer will be active for 1 second every hour to measure acceleration, and the particulate matter sensor will be active for 1 second every hour to measure particulate matter concentration.
 Assuming the following power consumption:
-\begin{itemize}
-  \item GPS module: 22mA for 10 seconds every hour
-  \item Accelerometer: 23$\mu$A for 1 second every hour
-  \item Particulate matter sensor: 68mA for 1 second every hour
-  \item Microcontroller: 10mA for 1 second every hour
-  \item LoRaWAN transmission: 20mA for 1 second every hour
-  \item Sleep mode: 1$\mu$A for $(60*60) - 10 - (1*4) \simeq 3586$ seconds every hour
+\begin{itemize}  \item GPS module: 22mA for 10 seconds every hour = 220mA·s
+  \item Accelerometer: 23$\mu$A for 1 second every hour = 0.023mA·s
+  \item Particulate matter sensor: 68mA for 1 second every hour = 68mA·s
+  \item Microcontroller (active processing): 10mA for 13 seconds every hour = 130mA·s
+  \item LoRaWAN transmission: 20mA for 1 second every hour = 20mA·s
+  \item Sleep mode: 1.69$\mu$A for $(60*60) - 10 - 13 - 1 \simeq 3576$ seconds every hour = 6.044mA·s
 \end{itemize}
 
+Based on these values, we can calculate the total power consumption per hour.
+We need to use the formula for power consumption $P = I \cdot t$, where $I$ is the current in milliamperes (mA) and $t$ is the time in seconds (s). The total power consumption per hour will be the sum of the power consumption of each component. The power consumption will be given in milliampere-seconds (mA·s) and then converted to milliampere-hours (mAh) by dividing by 3600 seconds per hour.
 
+\begin{align*}
+\text{Total per hour} &= 220\text{mA·s} + 0.023\text{mA·s} + 68\text{mA·s} + 130\text{mA·s} + 20\text{mA·s} + 6.044\text{mA·s} \\
+&= 444.067\text{mA·s} \approx 0.1234\text{mAh per hour}
+\end{align*}
+
+For a 6-month (0.5 year) deployment, we can calculate the total battery capacity required:
+\begin{align*}
+\text{Total capacity} &= 0.1234\text{mAh} \times 24\text{h} \times 365.25\text{days} \times 0.5\text{year} \\
+&= 0.1234\text{mAh} \times 24\text{h} \times 182.625\text{days} \\
+&= 0.1234\text{mAh} \times 4,383\text{h} \\
+&= 540.86\text{mAh}
+\end{align*}
+
+To account for battery self-discharge, temperature effects, and capacity degradation over time, we should include a safety factor of at least 1.5:
+\begin{align*}
+\text{Required capacity} &= 540.86\text{mAh} \times 1.5 \\
+&= 811.29\text{mAh} \approx 800\text{mAh}
+\end{align*}
+
+Therefore, a 600mAh lithium-ion battery would be sufficient for our application. However, to provide additional reliability and to account for potential harsh operating conditions in wildlife environments, we would recommend using a 1000mAh battery, which provides extra margin while still maintaining a reasonable size and weight.
 
 For additional power supply, we can consider energy harvesting. 
-A common source would be using a solar panel. A possible issue would be that the device is not always exposed to sunlight, especially in the case of animals that might cover the cell from the sun with their body, fur or dirt.
+A small solar panel rated at approximately 0.5W (measuring around 50mm × 50mm) would be sufficient to recharge the battery during daylight hours. With an average of just 1-2 hours of effective sunlight per day, this would provide enough additional energy to significantly extend the battery life beyond the required 6 months. 
 
-
-The device will also have a solar panel to recharge the battery when it is exposed to sunlight. The solar panel will be able to provide enough power to keep the battery charged even in low-light conditions.
+A potential issue would be that the device is not always exposed to sunlight, especially in the case of animals that might cover the cell from the sun with their body, fur or dirt. However, the generously-sized battery should compensate for periods without solar charging. The combination of a 1000mAh battery with solar recharging would likely enable the device to operate for well over a year in most deployment scenarios, and potentially indefinitely in locations with good sun exposure.
 
