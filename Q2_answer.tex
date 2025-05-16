@@ -37,8 +37,9 @@ The idea of the central servers is to have a place to process and store the data
 \end{figure}
 
 \subsubsection{Scalability and Flexibility}
-Setting the system up in layers like this allows us to just add more devices, gateways and servers as needed. Given that each node only sends a message once per hour, the system should be able to handle a large number of devices without any issues. The bigger issue might come down to the gateways depending on how many devices we end up having to support. In a place like Mpala we might not be able to just add more gateways.
+Setting the system up in layers like this allows us to just add more devices, gateways and servers as needed. Given that each node only sends a message once per hour, the system should be able to handle a large number of devices without any issues. The bigger issue might come down to the gateways depending on how many devices we end up having to support. In a place like Mpala we might not be able to just add more gateways. For impala instead of simply relying on existing structures, we might need to deploy additional solar-powered gateways in remote areas to ensure full coverage.
 Servers on the other hand shouldn't be a problem as most applications for analysis would be able to scale horizontally. We can just add more servers to handle the increased load.
+If we end up having too big of a load from end-users we can also consider adding read-replicas to the database to handle the increased load. 
 
 \subsection{Analytics and Data Processing}
 
@@ -49,7 +50,25 @@ The idea is to use TinyML models on the devices to do some basic processing of t
 On the servers we will do more advanced processing of the combined data from all devices. The combination of data from multiple devices will allow us to do flock analysis, which will allow us to see how animals move in relation to each other. We can also do more advanced analysis of the particulate matter data, which will allow us to see how the air quality changes over time and how it relates to the animals movement.
 The servers will also be able to draw in things like weather data to see how the weather affects things like the animals movement patterns and the air quality.
 
-Interesting insights that we can get from the data include:
+\subsubsection{Data Augmentation from External Sources}
+While our sensor network provides valuable primary data, combining it with external data sources can significantly enhance our analytics capabilities:
+
+\begin{itemize}
+  \item \textbf{Satellite Imagery}: Incorporating remote sensing data allows tracking of vegetation changes, water availability, and land use modifications that might affect animal behavior. For example, NDVI (Normalized Difference Vegetation Index) data could help correlate animal movement with food availability.
+  
+  \item \textbf{Weather Station Networks}: More detailed meteorological data than what's publicly available (temperature gradients, precipitation patterns, wind direction) could help explain unusual movement patterns or air quality fluctuations.
+  
+  \item \textbf{Tourist/Visitor Data}: Information about visitor numbers, vehicle routes, and peak visitation times can be correlated with animal stress indicators and air quality measurements to assess human impact.
+  
+  \item \textbf{Historical Ecological Records}: Previous studies on the wildlife populations, manual tracking data, and historical health records can provide baseline comparisons for our automated monitoring.
+  
+  \item \textbf{Road Traffic Data}: For Knuthenborg particularly, information about traffic on nearby highways could help distinguish between park vehicle pollution and external pollution sources.
+\end{itemize}
+
+By integrating these external data sources with our sensor data, we can develop more comprehensive models that account for environmental, human, and historical factors affecting wildlife behavior and health.
+
+\subsection{Insights and Ratings}
+The data collected from the sensor devices will provide valuable insights into the wildlife and environmental conditions in the parks. By analyzing the movement patterns of animals, we can gain a better understanding of their behavior and health. The particulate matter data will allow us to assess the air quality in the parks and see if there are any issues with pollution or other environmental factors. Some of the insights we can gain from the data include:
 
 \begin{itemize}
   \item \textbf{Movement Patterns}: How far animals travel, areas they visit, and rest periods.
@@ -60,11 +79,41 @@ Interesting insights that we can get from the data include:
   \item \textbf{Health Indicators}: Activity levels and potential health issues based on movement patterns.
 \end{itemize}
 
-With the insights the staff in the parks will be able to see how the animals are doing and if there are any issues that need to be addressed. The insights can also be used to see how the air quality is doing in the parks, which can be used to see if there are any issues with pollution or other environmental factors.
+With the insights the staff in the parks will be able to see how the animals are doing and if there are any issues that need to be addressed. The insights can be used to see how the air quality is doing in the parks, which can be used to see if there are any issues with pollution or other environmental factors.
 
-Based on the insights we can decide on some ratings for the parks. We could use the data to build a health score based on movement patterns and air quality. The health score could be used to tell the park staff if they need to do a more thorough health check on specific animals or if they need to take action to improve the air quality in the park. 
-We could build a risk assessment based on predictive health analytics. By analyzing historical data, we can identify patterns that precede health issues, allowing us to proactively monitor at-risk animals before they show symptoms.
+\subsubsection{Key Ratings and Decision Support}
+Based on our data analytics, several important ratings can be generated to support park management decisions:
+
+\begin{itemize}
+  \item \textbf{Animal Health Scores (0-100)}: Derived from movement patterns, rest periods, and activity levels. A score below 70 would trigger veterinary check-ups for specific animals.
+  
+  \item \textbf{Environmental Quality Index}: A composite rating that combines air quality measurements with other environmental factors, helping managers identify areas requiring intervention.
+  
+  \item \textbf{Vehicle Impact Rating}: A scale showing how vehicle presence correlates with animal behavior changes and air quality, supporting decisions about vehicle restrictions in sensitive areas.
+  
+  \item \textbf{Territory Pressure Indicators}: Ratings showing which territories are experiencing unusual crowding or abandonment, helping with habitat management decisions.
+  
+  \item \textbf{Anomaly Detection Alerts}: Risk ratings identifying unusual animal behaviors or environmental conditions that fall outside normal parameters and require immediate attention.
+  
+  \item \textbf{Seasonal Stress Index}: A predictive rating that anticipates periods of environmental or animal stress based on historical patterns, supporting proactive management.
+\end{itemize}
+
+These ratings transform complex sensor data into actionable intelligence for park staff. For example, if the Animal Health Score for a specific zebra drops from 85 to 65 over two weeks, this would automatically flag the animal for observation. Similarly, if the Environmental Quality Index in a specific region shows declining trends, staff could investigate potential pollution sources or implement mitigation strategies.
+
+% \subsection{System Scalability and Challenges}
+% The system must scale in three key dimensions: sensor nodes, end-users, and geographical distribution. Each presents unique challenges in the wildlife monitoring context.
+
+% \subsubsection{Scaling Sensor Nodes}
+% The system can efficiently scale the number of sensor devices due to hourly transmission schedules, LoRaWAN's support for hundreds of devices per gateway, and edge processing via TinyML that reduces data volume. 
+
+% The main challenges when adding more sensors include limited gateway capacity in remote regions, increased network power requirements, and greater server storage demands. To address these issues, adaptive sampling rates that adjust based on battery levels and data importance can be implemented. This approach prioritizes critical data while reducing power usage and load on gateways.
+
+% \subsubsection{End-User Scalability}
+% As more researchers and staff use the system, it becomes necessary to handle concurrent sessions. Database read-replicas can maintain performance, as researchers will primarily query historical data rather than write new data.
+
+% \subsubsection{Geographical Distribution}
+% The two parks present different connectivity challenges, particularly Mpala with its larger, more remote areas. Solar-powered gateways in remote locations can extend coverage without relying on traditional power sources.
+
 
 \subsection{Conclusion}
-The proposed monitoring system leverages hourly data collection to create a practical, energy-efficient solution for wildlife tracking. By focusing on what's achievable with periodic rather than continuous monitoring, we create a system that's both feasible to deploy in remote environments and capable of generating valuable insights for research and park management.
-
+The proposed monitoring system is build around hourly data collection to create a practical, energy-efficient solution for wildlife tracking. By focusing on what's achievable with periodic rather than continuous monitoring, the system is created both be feasible to deploy in remote environments and capable of generating valuable insights for research and park management.

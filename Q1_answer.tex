@@ -47,13 +47,13 @@ Because the device needs to be able to track animals as many types of animals ar
 For the acceleration we can would want to use a accelerometer. An example of a sensor could be the ADXL345, which measures at 3mm x 5mm x 1mm, has a range of up to +/-16g, and can operate in temperatures from -40 to +85 degrees Celsius. ADXL345 can measure the acceleration of the device in three dimensions so vertical movement of birds can be detected too if needed. It has a startup of 1.4ms, with a resolution of 13 bits, typically operates at 2.5V, and has a draw of 23$\mu$A in normal operation and 0.1$\mu$A in standby mode\cite{adxl345}.
 
 \subsection{Particulate matter concentration}
-For the particulate matter concentration, we can use the Bosch BMV080 laser particle sensor. This compact sensor measures only 4.2 mm x 3 mm x 3.5 mm, making it ideal for our size constraints. A key advantage of the BMV080 is its fan-less. Unlike traditional particulate matter sensors that require fans to draw air through the sensing chamber, the BMV080 is able to measure particulate matter concentration without a fan. This is would be beneficial for our use case, as it reduces the risk of dust buildup on the sensor. Dust is especially problematic in wildlife environments like the parks that we want to deploy the devices in, as it can clog the fan and affect the sensor's performance. The sensor operates with a supply voltage of 1.8 to 3.3 V and has a quick start-up time of 1.2 seconds. It can function in temperatures ranging from -15°C to +65°C, which covers our operational requirements. The BMV080 is has a sleep current of less than 3$\mu$A and an average total current of less than 68mA at 0.97Hz output data rate.
+For the particulate matter concentration, we can use the Bosch BMV080 laser particle sensor\cite{bmv080}. This compact sensor measures only 4.2 mm x 3 mm x 3.5 mm, making it ideal for our size constraints. A key advantage of the BMV080 is its fan-less. Unlike traditional particulate matter sensors that require fans to draw air through the sensing chamber, the BMV080 is able to measure particulate matter concentration without a fan. This is would be beneficial for our use case, as it reduces the risk of dust buildup on the sensor. Dust is especially problematic in wildlife environments like the parks that we want to deploy the devices in, as it can clog the fan and affect the sensor's performance. The sensor operates with a supply voltage of 1.8 to 3.3 V and has a quick start-up time of 1.2 seconds. It can function in temperatures ranging from -15°C to +65°C, which covers our operational requirements. The BMV080 is has a sleep current of less than 3$\mu$A and an average total current of less than 68mA at 0.97Hz output data rate.
 The datasheet conveniently also specifies that in duty cycling mode that we will use, then the sensor will use about 0.6mW each hour. 
 
 %A restriction to keep in mind is the sensor requires a host that is ESP32, Cortex-M4 or Raspberry Pi Arm
 
 \subsection{Location tracking}
-For the location tracking, we can use a GPS module. The GPS module is a small device that provides real-time location data by using satellite signals to determine the device's position. It offers accurate tracking even in remote areas like Mpala. An example of such a module is the u-blox MIA-M10, which measures just 4.5 mm x 4.5 mm x 1 mm. It supports our needs with a temperature range from -40°C to +85°C, has a cold start time of about 30 seconds, and has a positional accuracy of up to 2.5 meters. It has power consumption, drawing approximately 22mA at 3.3V during continuous tracking. However, with power supplied to the VBAT pin, it can retain satellite data and significantly reduce startup time to 1-10 seconds, using less energy per fix. In deep sleep mode with VBAT maintained, the module draws as little as 1$\mu$A.
+For the location tracking, we can use a GPS module. The GPS module is a small device that provides real-time location data by using satellite signals to determine the device's position. It offers accurate tracking even in remote areas like Mpala. An example of such a module is the u-blox MIA-M10q, which measures just 4.5 mm x 4.5 mm x 1 mm\cite{u_blox_mia_m10q}. It supports our needs with a temperature range from -40°C to +85°C, has a cold start time of about 30 seconds, and has a positional accuracy of up to 2.5 meters. It has power consumption, drawing approximately 22mA at 3.3V during continuous tracking. However, with power supplied to the VBAT pin, it can retain satellite data and significantly reduce startup time to 1-10 seconds, using less energy per fix. In deep sleep mode with VBAT maintained, the module draws as little as 1$\mu$A.
 
 \subsubsection{Microcontroller and communication}
 Given that we want to send data over a long distance, we can use LoRaWAN for communication. An example of a microcontroller that supports LoRaWAN is the RAK3172 module based on the STM32WLE5 chip\cite{rak3172_datasheet}. The module has an ARM Cortex-M4 core, which fits the host requirement for the Bosch BMV080 sensor. The RAK3172 measuring only 15 mm x 15.5 mm x 3.5 mm, making it suitable for our small-size requirements.
@@ -73,13 +73,29 @@ The device will be powered by a rechargeable lithium-ion battery. The battery sh
 
 To know how much power we need, we can calculate the power consumption of the device. This will be a naive calculation, as we have not yet tested real-world power consumption, but it will give us an idea of the power requirements.
 
-We know we need to send data every hour, and we can assume that the device will be in sleep mode most of the time to conserve power.
-We assume that the GPS module will be active for 10 seconds every hour to get a location fix, the accelerometer will be active for 1 second every hour to measure acceleration, and the particulate matter sensor will be active for 1 second every hour to measure particulate matter concentration.
+We need to send data every hour, and the device will remain in sleep mode most of the time to conserve power. Our duty cycle strategy is as follows:
+
+\begin{enumerate}
+  \item \textbf{Wake-up phase}: The microcontroller wakes up from deep sleep at the beginning of each hour.
+  \item \textbf{Sensor activation}: Sensors are activated sequentially to minimize peak current draw:
+  \begin{itemize}
+    \item Accelerometer activates first (1 second) due to its quick startup time
+    \item Particulate matter sensor follows (1 second) 
+    \item GPS module activates last (10 seconds) with warm start optimization when possible
+  \end{itemize}
+  \item \textbf{Data processing}: The microcontroller processes collected data (2 seconds)
+  \item \textbf{Transmission}: Data is packaged and transmitted via LoRaWAN (1 second)
+  \item \textbf{Sleep mode}: The device returns to deep sleep until the next hourly cycle
+\end{enumerate}
+
+This results in an active period of approximately 15 seconds per hour (0.42\% duty cycle), with the remaining 3,585 seconds in deep sleep mode.
+
 Assuming the following power consumption:
-\begin{itemize}  \item GPS module: 22mA for 10 seconds every hour = 220mA·s
+\begin{itemize}
+  \item GPS module: 22mA for 10 seconds every hour = 220mA·s
   \item Accelerometer: 23$\mu$A for 1 second every hour = 0.023mA·s
   \item Particulate matter sensor: 68mA for 1 second every hour = 68mA·s
-  \item Microcontroller (active processing): 10mA for 13 seconds every hour = 130mA·s
+  \item Microcontroller (active processing): 10mA for 20 seconds every hour = 200mA·s
   \item LoRaWAN transmission: 20mA for 1 second every hour = 20mA·s
   \item Sleep mode: 1.69$\mu$A for $(60*60) - 10 - 13 - 1 \simeq 3576$ seconds every hour = 6.044mA·s
 \end{itemize}
@@ -109,7 +125,7 @@ To account for battery self-discharge, temperature effects, and capacity degrada
 Therefore, a 600mAh lithium-ion battery would be sufficient for our application. However, to provide additional reliability and to account for potential harsh operating conditions in wildlife environments, we would recommend using a 1000mAh battery, which provides extra margin while still maintaining a reasonable size and weight. % todo figure out why it is so low
 
 For additional power supply, we can consider energy harvesting. 
-A small solar panel rated at approximately 0.5W (measuring around 50mm × 50mm) would be sufficient to recharge the battery during daylight hours. With an average of just 1-2 hours of effective sunlight per day, this would provide enough additional energy to significantly extend the battery life beyond the required 6 months. 
+A small solar panel rated at approximately 0.5W (measuring around 50mm × 50mm) would be sufficient to recharge the battery during daylight hours. With an average of just 1-2 hours of effective sunlight per day, this would provide enough additional energy to significantly extend the battery life beyond the required 6 months.
 
 A potential issue would be that the device is not always exposed to sunlight, especially in the case of animals that might cover the cell from the sun with their body, fur or dirt. However, the generously-sized battery should compensate for periods without solar charging. The combination of a 1000mAh battery with solar recharging would likely enable the device to operate for well over a year in most deployment scenarios, and potentially indefinitely in locations with good sun exposure.
 
@@ -133,3 +149,45 @@ The total area of the components would be approximately:
 &= 15 + 44.1 + 20.25 + 817.5 + 3000 + 5000 \\
 &= 8856.85 \text{ mm}^3
 \end{align*}
+
+To account for the enclosure and additional components such as connectors lets say we triple the volume to allow for the enclosure and connectors, giving us a total volume of approximately 26,570 mm³ = 26.57 cm³.
+
+\subsection{Payload Format and Transmission Strategy}
+The device will transmit the following data in each hourly LoRaWAN payload:
+
+\begin{itemize}
+  \item Device ID (2 bytes): Unique identifier for each tracking device
+  \item GPS Coordinates (8 bytes): Latitude and longitude (4 bytes each)
+  \item Acceleration (6 bytes): X, Y, Z axis measurements (2 bytes each)
+  \item Particulate Matter (2 bytes): PM2.5 concentration
+  \item Battery Voltage (1 byte): For remote monitoring of device health
+  \item Timestamp (4 bytes): UTC time of measurement
+\end{itemize}
+
+The total payload size is 23 bytes per transmission. This compact format balances information richness with bandwidth efficiency, critical for LoRaWAN networks where payload size directly impacts transmission time and power consumption. The small payload allows us to transmit using the highest data rate possible for the given range conditions, further optimizing power consumption during transmission.
+
+For the network architecture, we would deploy LoRaWAN gateways at strategic locations throughout both wildlife parks. Given the size of Knuthenborg Safari Park (1,600 acres), approximately 2-3 gateways would provide sufficient coverage. For the much larger Mpala Research Center (48,000 acres), a network of 10-15 gateways positioned at elevated locations would be required to ensure continuous connectivity.
+
+\subsection{Design Trade-offs}
+The design balances several competing factors:
+
+\begin{itemize}
+  \item \textbf{Energy vs Data Frequency}: Hourly measurements provide sufficient temporal resolution for tracking wildlife movement patterns while keeping power consumption low. More frequent transmissions would provide better real-time tracking but would significantly reduce battery life. This hourly interval offers a good compromise for monitoring both fast-moving vehicles and slower wildlife migration patterns.
+  
+  \item \textbf{Size vs Battery Capacity}: The 1000mAh battery offers sufficient capacity but increases device size. For smaller animals, a 600mAh option could be considered to reduce weight at the expense of operational lifetime. We prioritized having a safety margin in our power budget to accommodate unexpected environmental conditions.
+  
+  \item \textbf{Network Selection}: We chose LoRaWAN over alternative technologies for several reasons:
+  \begin{itemize}
+    \item Compared to cellular (GSM/LTE): LoRaWAN offers significantly lower power consumption and better coverage in remote areas, though with lower data rates.
+    \item Compared to satellite: LoRaWAN provides much lower cost per device and lower power consumption, though with more limited coverage requiring gateway infrastructure.
+    \item Compared to Bluetooth/WiFi: LoRaWAN offers drastically increased range at the expense of bandwidth.
+  \end{itemize}
+  
+  \item \textbf{Transmission Power vs Range}: Operating at 14 dBm maximizes coverage range but increases transmission power consumption. In areas with dense gateway coverage, adaptive power settings could be implemented to reduce transmission power when in proximity to gateways.
+  
+  \item \textbf{Sensor Selection}: The BMV080 particulate sensor offers fan-less operation ideal for dusty environments but has a higher temperature minimum (-15°C) than other components. This represents a compromise between reliability and temperature range, slightly limiting operation in extremely cold conditions at Knuthenborg during winter.
+  
+  \item \textbf{Solar Power vs Battery Only}: Adding a solar panel increases the device size but provides potentially unlimited operational lifetime in sunny conditions. For heavily forested areas or for animals with nocturnal habits, the battery capacity alone ensures minimum operational requirements are met, while solar charging provides extended operation in favorable conditions.
+\end{itemize}
+
+The final design prioritizes reliability, battery life, and size constraints while ensuring data quality sufficient for wildlife monitoring applications in both park environments. The architecture optimizes for extremely low duty cycle operation, with the device spending over 99.5% of its time in deep sleep mode to maximize battery life.
