@@ -55,7 +55,7 @@ The datasheet conveniently also specifies that in duty cycling mode that we will
 \subsection{Location tracking}
 For the location tracking, we can use a GPS module. The GPS module is a small device that provides real-time location data by using satellite signals to determine the device's position. It offers accurate tracking even in remote areas like Mpala. An example of such a module is the u-blox MIA-M10q, which measures just 4.5 mm x 4.5 mm x 1 mm\cite{u_blox_mia_m10q}. It supports our needs with a temperature range from -40°C to +85°C, has a cold start time of about 30 seconds, and has a positional accuracy of up to 2.5 meters. It has power consumption, drawing approximately 22mA at 3.3V during continuous tracking. However, with power supplied to the VBAT pin, it can retain satellite data and significantly reduce startup time to 1-10 seconds, using less energy per fix. In deep sleep mode with VBAT maintained, the module draws as little as 1$\mu$A.
 
-\subsubsection{Microcontroller and communication}
+\subsection{Microcontroller and communication}
 Given that we want to send data over a long distance, we can use LoRaWAN for communication. An example of a microcontroller that supports LoRaWAN is the RAK3172 module based on the STM32WLE5 chip\cite{rak3172_datasheet}. The module has an ARM Cortex-M4 core, which fits the host requirement for the Bosch BMV080 sensor. The RAK3172 measuring only 15 mm x 15.5 mm x 3.5 mm, making it suitable for our small-size requirements.
 
 The module supports a temperature range from -40 °C to +85 °C, which is ideal for the extreme conditions in both wildlife parks. It operates with a supply voltage of 2.0 to 3.6 V, compatible with our other components. The module provides multiple I/O ports including UART, SPI, ADC, GPIO and most notably I2C which many of the sensors require.
@@ -68,7 +68,7 @@ For our application, we would use this microcontroller to collect data from the 
 
 As we want to at least be sure we can send data 1km, we will set the LoRa transmission power to 14 dBm, which is the maximum allowed in the EU868 band. This will allow us to achieve a range of up to 10 km in open areas, which is more than sufficient for our needs in both wildlife parks.
 
-\subsubsection{Power supply}
+\subsection{Power supply}
 The device will be powered by a rechargeable lithium-ion battery. The battery should be able to provide power for at least 0.5 years of operation.
 
 To know how much power we need, we can calculate the power consumption of the device. This will be a naive calculation, as we have not yet tested real-world power consumption, but it will give us an idea of the power requirements.
@@ -88,7 +88,7 @@ We need to send data every hour, and the device will remain in sleep mode most o
   \item \textbf{Sleep mode}: The device returns to deep sleep until the next hourly cycle
 \end{enumerate}
 
-This results in an active period of approximately 15 seconds per hour (0.42\% duty cycle), with the remaining 3,585 seconds in deep sleep mode.
+This results in an active period of approximately 33 seconds per hour (0.92\% duty cycle), with the remaining 3,567 seconds in deep sleep mode.
 
 Assuming the following power consumption:
 \begin{itemize}
@@ -97,34 +97,35 @@ Assuming the following power consumption:
   \item Particulate matter sensor: 68mA for 1 second every hour = 68mA·s
   \item Microcontroller (active processing): 10mA for 20 seconds every hour = 200mA·s
   \item LoRaWAN transmission: 20mA for 1 second every hour = 20mA·s
-  \item Sleep mode: 1.69$\mu$A for $(60*60) - 10 - 13 - 1 \simeq 3576$ seconds every hour = 6.044mA·s
+  \item Sleep mode: 1.69$\mu$A for $(60*60) - 10 - 1 - 1 - 20 - 1 \simeq 3567$ seconds every hour = 6.03\text{mA·s}
 \end{itemize}
 
 Based on these values, we can calculate the total power consumption per hour.
 We need to use the formula for power consumption $P = I \cdot t$, where $I$ is the current in milliamperes (mA) and $t$ is the time in seconds (s). The total power consumption per hour will be the sum of the power consumption of each component. The power consumption will be given in milliampere-seconds (mA·s) and then converted to milliampere-hours (mAh) by dividing by 3600 seconds per hour.
 
 \begin{align*}
-\text{Total per hour} &= 220\text{mA·s} + 0.023\text{mA·s} + 68\text{mA·s} + 130\text{mA·s} + 20\text{mA·s} + 6.044\text{mA·s} \\
-&= 444.067\text{mA·s} \approx 0.1234\text{mAh per hour}
+\text{Total per hour} &= 220\text{mA·s} + 0.023\text{mA·s} + 68\text{mA·s} + 200\text{mA·s} + 20\text{mA·s} + 6.03\text{mA·s} \\
+&= 514.053\text{mA·s} \approx 0.1428\text{mAh per hour}
 \end{align*}
 
 For a 6-month (0.5 year) deployment, we can calculate the total battery capacity required:
 \begin{align*}
-\text{Total capacity} &= 0.1234\text{mAh} \times 24\text{h} \times 365.25\text{days} \times 0.5\text{year} \\
-&= 0.1234\text{mAh} \times 24\text{h} \times 182.625\text{days} \\
-&= 0.1234\text{mAh} \times 4,383\text{h} \\
-&= 540.86\text{mAh}
+\text{Total capacity} &= 0.1428\text{mAh} \times 24\text{h} \times 365.25\text{days} \times 0.5\text{year} \\
+&= 0.1428\text{mAh} \times 24\text{h} \times 182.625\text{days} \\
+&= 0.1428\text{mAh} \times 4,383\text{h} \\
+&= 625.89\text{mAh}
 \end{align*}
 
 To account for battery self-discharge, temperature effects, and capacity degradation over time, we should include a safety factor of at least 1.5:
 \begin{align*}
-\text{Required capacity} &= 540.86\text{mAh} \times 1.5 \\
-&= 811.29\text{mAh} \approx 800\text{mAh}
+\text{Required capacity} &= 625.89\text{mAh} \times 1.5 \\
+&= 938.84\text{mAh} \approx 950\text{mAh}
 \end{align*}
 
-Therefore, a 600mAh lithium-ion battery would be sufficient for our application. However, to provide additional reliability and to account for potential harsh operating conditions in wildlife environments, we would recommend using a 1000mAh battery, which provides extra margin while still maintaining a reasonable size and weight. % todo figure out why it is so low
+Based on this calculation, we can select a 1000mAh lithium-ion battery, which is a common size for small IoT devices. There are probably things we have not accounted for, which would increase the power consumption, requiring a larger battery, but this should be a good starting point.
 
-For additional power supply, we can consider energy harvesting. 
+\subsubsection{Energy harvesting}
+For additional power supply, we can consider energy harvesting.
 A small solar panel rated at approximately 0.5W (measuring around 50mm × 50mm) would be sufficient to recharge the battery during daylight hours. With an average of just 1-2 hours of effective sunlight per day, this would provide enough additional energy to significantly extend the battery life beyond the required 6 months.
 
 A potential issue would be that the device is not always exposed to sunlight, especially in the case of animals that might cover the cell from the sun with their body, fur or dirt. However, the generously-sized battery should compensate for periods without solar charging. The combination of a 1000mAh battery with solar recharging would likely enable the device to operate for well over a year in most deployment scenarios, and potentially indefinitely in locations with good sun exposure.
@@ -172,22 +173,13 @@ For the network architecture, we would deploy LoRaWAN gateways at strategic loca
 The design balances several competing factors:
 
 \begin{itemize}
-  \item \textbf{Energy vs Data Frequency}: Hourly measurements provide sufficient temporal resolution for tracking wildlife movement patterns while keeping power consumption low. More frequent transmissions would provide better real-time tracking but would significantly reduce battery life. This hourly interval offers a good compromise for monitoring both fast-moving vehicles and slower wildlife migration patterns.
+  \item \textbf{Solar Power vs Battery Only}: Adding a solar panel increases the device size but might significantly extend battery life, especially in sunny environments like Mpala. However, it may not be feasible for all animals to carry due to size constraints, risk of damage or obstruction by fur/dirt.
+
+  \item \textbf{Energy vs Data Frequency}: Based on the energy budget it might be possible to allow for a higher data frequency than once per hour, especially if we increase the battery capacity and/or add solar charging.
   
-  \item \textbf{Size vs Battery Capacity}: The 1000mAh battery offers sufficient capacity but increases device size. For smaller animals, a 600mAh option could be considered to reduce weight at the expense of operational lifetime. We prioritized having a safety margin in our power budget to accommodate unexpected environmental conditions.
+  \item \textbf{Network Selection}: LoRaWAN was chosen as the networking technologies, but a place like Knuthenborg might already have cellular coverage, which could allow for higher data rates. However, LoRaWAN is more power-efficient and better suited for the remote areas of Mpala Research Center.
   
-  \item \textbf{Network Selection}: We chose LoRaWAN over alternative technologies for several reasons:
-  \begin{itemize}
-    \item Compared to cellular (GSM/LTE): LoRaWAN offers significantly lower power consumption and better coverage in remote areas, though with lower data rates.
-    \item Compared to satellite: LoRaWAN provides much lower cost per device and lower power consumption, though with more limited coverage requiring gateway infrastructure.
-    \item Compared to Bluetooth/WiFi: LoRaWAN offers drastically increased range at the expense of bandwidth.
-  \end{itemize}
-  
-  \item \textbf{Transmission Power vs Range}: Operating at 14 dBm maximizes coverage range but increases transmission power consumption. In areas with dense gateway coverage, adaptive power settings could be implemented to reduce transmission power when in proximity to gateways.
-  
-  \item \textbf{Sensor Selection}: The BMV080 particulate sensor offers fan-less operation ideal for dusty environments but has a higher temperature minimum (-15°C) than other components. This represents a compromise between reliability and temperature range, slightly limiting operation in extremely cold conditions at Knuthenborg during winter.
-  
-  \item \textbf{Solar Power vs Battery Only}: Adding a solar panel increases the device size but provides potentially unlimited operational lifetime in sunny conditions. For heavily forested areas or for animals with nocturnal habits, the battery capacity alone ensures minimum operational requirements are met, while solar charging provides extended operation in favorable conditions.
+  \item \textbf{Transmission Power vs Range}: Operating at 14 dBm gives the biggest range but increases transmission power consumption. In areas with more gateway coverage, adaptive power settings could probably be implemented to reduce transmission power when closer to gateways.
 \end{itemize}
 
-The final design prioritizes reliability, battery life, and size constraints while ensuring data quality sufficient for wildlife monitoring applications in both park environments. The architecture optimizes for extremely low duty cycle operation, with the device spending over 99.5% of its time in deep sleep mode to maximize battery life.
+The final design prioritizes reliability, battery life, and size constraints while ensuring data quality sufficient for wildlife monitoring applications in both park environments. The architecture optimizes for extremely low duty cycle operation, with the device spending over 99\% of its time in deep sleep mode to maximize battery life.
