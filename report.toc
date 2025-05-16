@@ -9,45 +9,16 @@
 \contentsline {subsubsection}{\numberline {1.6.1}Microcontroller and communication}{4}{subsubsection.1.6.1}%
 \contentsline {subsubsection}{\numberline {1.6.2}Power supply}{5}{subsubsection.1.6.2}%
 \contentsline {subsection}{\numberline {1.7}Device enclosure}{7}{subsection.1.7}%
-\contentsline {section}{\numberline {2}Question 2 --- Wildlife Monitoring System Architecture}{8}{section.2}%
-\contentsline {section}{Question 2 --- Wildlife Monitoring System Architecture}{8}{section.2}%
-\contentsline {subsection}{\numberline {2.1}System Architecture}{8}{subsection.2.1}%
-\contentsline {subsubsection}{\numberline {2.1.1}Architecture Overview}{8}{subsubsection.2.1.1}%
-\contentsline {subsubsection}{\numberline {2.1.2}Design Choices and Motivation}{8}{subsubsection.2.1.2}%
-\contentsline {paragraph}{Device Layer}{8}{section*.2}%
-\contentsline {paragraph}{Network Layer}{9}{section*.3}%
-\contentsline {paragraph}{Middleware Layer}{10}{section*.4}%
-\contentsline {paragraph}{Application Layer}{10}{section*.5}%
-\contentsline {paragraph}{Data Flow}{10}{section*.6}%
-\contentsline {subsection}{\numberline {2.2}Analytics and Machine Learning}{11}{subsection.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.1}Role of Analytics}{11}{subsubsection.2.2.1}%
-\contentsline {paragraph}{Edge Analytics (Device Level)}{11}{section*.7}%
-\contentsline {paragraph}{Cloud Analytics (System Level)}{11}{section*.8}%
-\contentsline {subsubsection}{\numberline {2.2.2}Decisions and Ratings of Interest}{12}{subsubsection.2.2.2}%
-\contentsline {paragraph}{Animal Health and Safety}{12}{section*.9}%
-\contentsline {paragraph}{Environmental Management}{12}{section*.10}%
-\contentsline {paragraph}{Research Insights}{13}{section*.11}%
-\contentsline {subsubsection}{\numberline {2.2.3}Data Augmentation with External Sources}{13}{subsubsection.2.2.3}%
-\contentsline {paragraph}{Weather Data}{13}{section*.12}%
-\contentsline {paragraph}{Satellite Imagery}{13}{section*.13}%
-\contentsline {paragraph}{Human Activity Data}{13}{section*.14}%
-\contentsline {paragraph}{Historical Research Data}{14}{section*.15}%
-\contentsline {subsection}{\numberline {2.3}System Scalability}{14}{subsection.2.3}%
-\contentsline {subsubsection}{\numberline {2.3.1}Scaling Dimensions}{14}{subsubsection.2.3.1}%
-\contentsline {paragraph}{Device Scaling}{14}{section*.16}%
-\contentsline {paragraph}{Geographic Scaling}{14}{section*.17}%
-\contentsline {paragraph}{User Scaling}{15}{section*.18}%
-\contentsline {paragraph}{Data Volume Scaling}{15}{section*.19}%
-\contentsline {subsubsection}{\numberline {2.3.2}Potential Bottlenecks and Solutions}{15}{subsubsection.2.3.2}%
-\contentsline {paragraph}{Network Bandwidth}{15}{section*.20}%
-\contentsline {paragraph}{Battery Life}{16}{section*.21}%
-\contentsline {paragraph}{Data Processing}{16}{section*.22}%
-\contentsline {paragraph}{Maintenance Logistics}{16}{section*.23}%
-\contentsline {subsection}{\numberline {2.4}Conclusion}{17}{subsection.2.4}%
-\contentsline {section}{\numberline {3}Question 3}{18}{section.3}%
-\contentsline {section}{Question 3}{18}{section.3}%
-\contentsline {section}{\numberline {4}Sensor precision VS sensor accuracy}{18}{section.4}%
-\contentsline {subsection}{\numberline {4.1}MQTT and it's role in IoT}{18}{subsection.4.1}%
-\contentsline {subsection}{\numberline {4.2}All relevant layers of Wi-Fi, Bluetooth, LoRa and LoRaWan and their use in IoT}{19}{subsection.4.2}%
-\contentsline {subsection}{\numberline {4.3}Security features of the LoRaWAN protocol}{19}{subsection.4.3}%
-\contentsline {section}{\numberline {5}Bibliography}{21}{section.5}%
+\contentsline {section}{\numberline {2}Question 2 --- Wildlife Monitoring System}{8}{section.2}%
+\contentsline {section}{Question 2 --- Wildlife Monitoring System}{8}{section.2}%
+\contentsline {subsection}{\numberline {2.1}System Architecture and Data Flow}{8}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}Scalability and Flexibility}{8}{subsubsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.2}Analytics and Data Processing}{9}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Conclusion}{10}{subsection.2.3}%
+\contentsline {section}{\numberline {3}Question 3}{11}{section.3}%
+\contentsline {section}{Question 3}{11}{section.3}%
+\contentsline {section}{\numberline {4}Sensor precision VS sensor accuracy}{11}{section.4}%
+\contentsline {subsection}{\numberline {4.1}MQTT and it's role in IoT}{11}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}All relevant layers of Wi-Fi, Bluetooth, LoRa and LoRaWan and their use in IoT}{12}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Security features of the LoRaWAN protocol}{12}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Bibliography}{14}{section.5}%

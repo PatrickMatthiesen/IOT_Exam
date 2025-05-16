@@ -1,277 +1,70 @@
-\section{Question 2 --- Wildlife Monitoring System Architecture}
-\addcontentsline{toc}{section}{Question 2 --- Wildlife Monitoring System Architecture}
+\section{Question 2 --- Wildlife Monitoring System}
+\addcontentsline{toc}{section}{Question 2 --- Wildlife Monitoring System}
 
-Building on the sensor device designed in Question 1, we now develop a system for tracking wildlife and vehicles in the two parks. The system will monitor animal movements and environmental conditions, providing valuable data for research and park management.
+Building on the sensor device designed in Question 1, we now develop a monitoring system for tracking wildlife and vehicles in the two parks. This system will collect and analyze data from our hourly measurements to support wildlife research and park management.
 
-\subsection{System Architecture}
+\subsection{System Architecture and Data Flow}
 
-\subsubsection{Architecture Overview}
-The system uses a layered IoT architecture to manage data from sensors and perform analytics. It includes four main layers:
+The system uses a practical three-tier architecture that efficiently handles data from sensor devices. We want all the nodes to be independent and be able to just send data. So we want to have gateways placed strategically in the parks accounting for things like trees, buildings, and other obstacles that might block the signal. Each gateway will be connected to a LoRaWAN network server, which will then forward the data to central servers for storage and analysis. 
 
-\begin{itemize}
-  \item \textbf{Device Layer}: Sensor devices on animals and vehicles that collect data
-  \item \textbf{Network Layer}: LoRaWAN infrastructure for long-range communication
-  \item \textbf{Middleware Layer}: Central servers for data ingestion, processing, and storage
-  \item \textbf{Application Layer}: User interfaces and analytics applications for data visualization and insights
-\end{itemize}
+I am not sure what the best option would be for sending data from gateways to the central servers, but I will assume that we can use a cellular network, satellite uplink, or fixed wireless connection depending on the local infrastructure. I have been able to see on maps that each park has a few buildings around the parks that might be suitable for placing the gateways. Given the size of Knuthenborg we might only need 3-5 gateways, but given the bigger size of Mpala we might need more.
 
-Figure 1 illustrates the complete system architecture with data flow indicated by arrows.
+The idea of the central servers is to have a place to process and store the data collected from the sensor devices. With the servers having processed the data it will also be easier to create user applications that can visualize the data and provide insights for researchers and park managers. Data flowing in from the sensor devices will be stored in a time-series database, which is well-suited for handling the hourly data from multiple devices. The results from analytics on the servers will be stored in a separate relational database. The system architecture is illustrated in Figure\ref{fig:system_architecture}.   
 
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}[node distance=1.5cm]
-% Define nodes
+% Define nodes - simplified version
 \node (sensors) [draw, rectangle, minimum width=3cm, minimum height=1cm] {Sensor Devices (Animals \& Vehicles)};
-\node (edge) [draw, rectangle, below of=sensors, minimum width=3cm, minimum height=1cm] {Edge Processing (TinyML)};
-\node (lorawan) [draw, rectangle, below of=edge, minimum width=3cm, minimum height=1cm] {LoRaWAN Network};
-\node (gateway) [draw, rectangle, below of=lorawan, minimum width=3cm, minimum height=1cm] {LoRaWAN Gateways};
-\node (cloud) [draw, ellipse, below of=gateway, minimum width=5cm, minimum height=2cm] {Cloud Platform};
-
-\node (storage) [draw, rectangle, below left of=cloud, xshift=-1.5cm, yshift=-1cm, minimum width=2.5cm, minimum height=1cm] {Data Storage};
-\node (processing) [draw, rectangle, below of=cloud, yshift=-1cm, minimum width=2.5cm, minimum height=1cm] {Data Processing};
-\node (analytics) [draw, rectangle, below right of=cloud, xshift=1.5cm, yshift=-1cm, minimum width=2.5cm, minimum height=1cm] {Advanced Analytics};
-
-\node (apps) [draw, rectangle, below of=processing, minimum width=6cm, minimum height=1cm] {Applications (Monitoring, Research, Management)};
+\node (gateway) [draw, rectangle, below of=sensors, minimum width=3cm, minimum height=1cm] {LoRaWAN Gateway};
+\node (lorawan) [draw, rectangle, below of=gateway, minimum width=3cm, minimum height=1cm] {LoRaWAN Network Server};
+\node (servers) [draw, ellipse, below of=lorawan, minimum width=5cm, minimum height=2cm] {Main servers};
+\node (logstorage) [draw, rectangle, below left of=servers, xshift=-1cm, yshift=-1cm, minimum width=2cm, minimum height=0.8cm] {Log Storage};
+\node (processing) [draw, rectangle, below right of=servers, xshift=1cm, yshift=-1cm, minimum width=2cm, minimum height=0.8cm] {Analytics database};
+\node (apps) [draw, rectangle, below of=processing, xshift=-2cm, minimum width=4cm, minimum height=0.8cm] {User Applications};
 
 % Define edges
-\draw[-stealth] (sensors) -- (edge);
-\draw[-stealth] (edge) -- (lorawan);
-\draw[-stealth] (lorawan) -- (gateway);
-\draw[-stealth] (gateway) -- (cloud);
-\draw[-stealth] (cloud) -- (storage);
-\draw[-stealth] (cloud) -- (processing);
-\draw[-stealth] (storage) -- (processing);
-\draw[-stealth] (processing) -- (analytics);
-\draw[-stealth] (analytics) -- (apps);
+\draw[-stealth] (sensors) -- (gateway);
+\draw[-stealth] (gateway) -- (lorawan);
+\draw[-stealth] (lorawan) -- (servers);
+\draw[-stealth] (servers) -- (logstorage);
+\draw[-stealth] (servers) -- (processing);
+\draw[-stealth] (logstorage) -- (apps);
 \draw[-stealth] (processing) -- (apps);
 \end{tikzpicture}
-\caption{System Architecture for Wildlife Monitoring System}
+\caption{System Architecture for Wildlife Monitoring}
+\label{fig:system_architecture}
 \end{figure}
 
-\subsubsection{Design Choices and Motivation}
+\subsubsection{Scalability and Flexibility}
+Setting the system up in layers like this allows us to just add more devices, gateways and servers as needed. Given that each node only sends a message once per hour, the system should be able to handle a large number of devices without any issues. The bigger issue might come down to the gateways depending on how many devices we end up having to support. In a place like Mpala we might not be able to just add more gateways.
+Servers on the other hand shouldn't be a problem as most applications for analysis would be able to scale horizontally. We can just add more servers to handle the increased load.
 
-\paragraph{Device Layer}
-The sensor devices developed in Question 1 form the device layer of our architecture. These devices include accelerometers (ADXL345), particulate matter sensors (BMV080), and GPS modules (u-blox MIA-M10), all controlled by the RAK3172 microcontroller. 
+\subsection{Analytics and Data Processing}
 
-Key design choices:
-\begin{itemize}
-  \item \textbf{Edge Processing}: We implement lightweight processing on the devices themselves to reduce data transmission volume and save power.
-  \item \textbf{Adaptive Sampling}: While the default sampling rate is hourly, the devices can adapt based on detected activity levels or environmental conditions.
-  \item \textbf{Energy Efficiency}: Solar-powered with backup batteries ensures long-term deployment in remote locations. % todo
-\end{itemize}
+The key parts of the system is the sensor devices and the servers that allow us to make data analysis on the data collected from the sensor devices. But we don't want to do all the processing on the servers, which would require us to send a lot of data which can be expensive for the devices. So we want to do some of the processing on the devices themselves, which will allow us to save power and bandwidth. 
 
-\paragraph{Network Layer}
-LoRaWAN was selected as the communication technology due to its long-range capabilities (up to 10km in rural areas) and low power consumption. The network layer consists of:
+The idea is to use TinyML models on the devices to do some basic processing of the data. The models will be trained to detect changes in the data, which will allow us to filter out meaningless data. For example we might not need to send the animals coordinates, if it has only moved up to 5 meters since the last measurement. This will allow us to save power and bandwidth, while still getting valuable insights from the data.
 
-\begin{itemize}
-  \item \textbf{LoRaWAN Gateways}: Strategically positioned throughout the wildlife parks, these gateways collect data from the sensor devices. For Knuthenborg Safari Park (1,600 acres), approximately 2-3 gateways would provide sufficient coverage. For the larger Mpala Research Center (48,000 acres), a more extensive network of 15-20 gateways would be optimal.
-  \item \textbf{Backhaul Connectivity}: Gateways connect to the internet via cellular (4G/5G), satellite, or fixed wireless connections depending what is most feasible in the park's location. I am not sure i have enough information about the parts to decide which connection type is best or feasible in each park.
-\end{itemize}
+On the servers we will do more advanced processing of the combined data from all devices. The combination of data from multiple devices will allow us to do flock analysis, which will allow us to see how animals move in relation to each other. We can also do more advanced analysis of the particulate matter data, which will allow us to see how the air quality changes over time and how it relates to the animals movement.
+The servers will also be able to draw in things like weather data to see how the weather affects things like the animals movement patterns and the air quality.
 
-\paragraph{Middleware Layer}
-This layer handles data ingestion, processing, and storage:
+Interesting insights that we can get from the data include:
 
 \begin{itemize}
-  \item \textbf{Network Server}: Manages the LoRaWAN network protocols and communication.
-  \item \textbf{Application Server}: Handles the application-specific data processing.
-  \item \textbf{Data Storage}: A combination of time-series databases for raw sensor data and relational databases for things like processed results.
-  \item \textbf{Message Broker}: Facilitates real-time data streaming between components using protocols like MQTT or Apache Kafka.
+  \item \textbf{Movement Patterns}: How far animals travel, areas they visit, and rest periods.
+  \item \textbf{Territory Mapping}: Home ranges and territories for different species.
+  \item \textbf{Seasonal Migration}: Patterns in movement across months and years.
+  \item \textbf{Air Quality Maps}: Spatial maps of particulate matter concentration.
+  \item \textbf{Vehicle Impact Assessment}: Correlation between vehicle locations and pollution patterns.
+  \item \textbf{Health Indicators}: Activity levels and potential health issues based on movement patterns.
 \end{itemize}
 
-\paragraph{Application Layer}
-The application layer provides user interfaces for researchers and park managers to access and analyze the data collected by the sensor devices. It includes:
+With the insights the staff in the parks will be able to see how the animals are doing and if there are any issues that need to be addressed. The insights can also be used to see how the air quality is doing in the parks, which can be used to see if there are any issues with pollution or other environmental factors.
 
-\begin{itemize}
-  \item \textbf{Web Portal}: Provides access to real-time monitoring and historical data analysis.
-  \item \textbf{API Services}: In case the parks want to share the data to other researchers or integrate with other systems.
-  \item \textbf{Analytics Engine}: Provides advanced data processing, ML model training, and visualization capabilities. % todo
-\end{itemize}
-
-\paragraph{Data Flow}
-The data flow through the system follows these steps:
-\begin{enumerate}
-  \item Sensor devices collect environmental and positioning data.
-  \item Edge processing filters and pre-processes data to extract relevant features. % for example data might not be interesting to send if it has not changed much since last time.
-  \item Data is transmitted via LoRaWAN to nearby gateways.
-  \item Gateways forward data to the network and application servers.
-  \item Raw data is stored in time-series databases and processed data in relational databases.
-  \item Analytics pipelines process the data to extract insights and identify patterns.
-  \item Results are made available through web portals and APIs for researchers and park managers.
-%   \item External data sources (e.g., weather, satellite imagery) can be integrated to enhance analytics.
-\end{enumerate}
-
-\subsection{Analytics and Machine Learning}
-
-\subsubsection{Role of Analytics}
-
-Analytics helps turn raw sensor data into useful information for wildlife research and park management.
-
-\paragraph{Edge Analytics (Device Level)}
-To maximize energy efficiency and reduce transmission bandwidth, we implement lightweight analytics directly on the sensor devices:
-
-\begin{itemize}
-  \item \textbf{TinyML Implementation}: Using TensorFlow Lite for Microcontrollers on the Cortex-M4 core of the RAK3172 module.
-  \item \textbf{Feature Extraction}: Computing statistical features (mean, variance, peaks) from raw accelerometer data to identify animal behaviors without transmitting full waveforms.
-  \item \textbf{Anomaly Detection}: Simple algorithms to detect unusual movements or environmental conditions that warrant immediate reporting. Things like high particulate matter concentrations or sudden changes in movement patterns.
-  \item \textbf{Adaptive Sampling}: Intelligent algorithms that adjust sampling frequency based on activity levels to conserve energy.
-\end{itemize}
-
-This approach significantly reduces power consumption by minimizing radio transmission, which is typically the most energy-intensive operation for IoT devices.
-
-\paragraph{Cloud Analytics (System Level)}
-In the cloud, we perform more analysis based on the aggregated data from all devices. This includes:
-
-\begin{itemize}
-  \item \textbf{Behavioral Classification}: Machine learning models classify animal behaviors (resting, feeding, mating, migrating) based on movement patterns.
-  \item \textbf{Health Monitoring}: Anomaly detection algorithms identify potential health issues in animals based on movement patterns and environmental exposure. % for example, detecting low activity levels that may indicate injury or illness.
-  \item \textbf{Environmental Monitoring}: Analysis of particulate matter data to track air quality across different park regions and correlate with animal behavior.
-  \item \textbf{Spatial Analysis}: Tracking movement patterns over time to identify seasonal migration patterns, territory boundaries, and habitat utilization.
-  \item \textbf{Forecasting}: Predictive models for animal movement patterns, population dynamics, and environmental conditions. This could include data from external sources like weather data, predicting how weather changes might affect animal behavior or habitat usage.
-\end{itemize}
-
-\subsubsection{Decisions and Ratings of Interest}
-
-The analytics system generates several key insights that aid in research and park management:
-
-\paragraph{Animal Health and Safety}
-\begin{itemize}
-  \item \textbf{Activity Level Assessment}: Extended periods of abnormally low activity could indicate injury or illness.
-  \item \textbf{Stress Detection}: Periods of higher acceleration might indicate stress or flight responses.
-  \item \textbf{Environmental Exposure Rating}: Prolonged exposure to high particulate matter concentrations may correlate with respiratory distress, especially in sensitive species.
-\end{itemize}
-
-\paragraph{Environmental Management}
-\begin{itemize}
-  \item \textbf{Air Quality Mapping}: Creating detailed maps of particulate matter concentrations to identify pollution hotspots.
-  \item \textbf{Correlation Analysis}: Linking particulate matter levels with wind patterns, human activity, and animal distribution.
-  \item \textbf{Impact Assessment}: Measuring how vehicle traffic patterns correlate with local air quality and animal behavior changes.
-\end{itemize}
-
-\paragraph{Research Insights}
-\begin{itemize}
-  \item \textbf{Interaction Networks}: Identifying social structures and inter-species interactions through proximity analysis.
-  \item \textbf{Habitat Utilization}: Quantifying how different species use available habitat based on movement data.
-\end{itemize}
-
-\subsubsection{Data Augmentation with External Sources}
-
-The value of our sensor data can be significantly enhanced by integration with external data sources:
-
-\paragraph{Weather Data}
-\begin{itemize}
-  \item \textbf{Source}: Local weather stations, satellite data, or weather APIs
-  \item \textbf{Enhanced Analytics}: Correlating animal behavior with temperature, precipitation, barometric pressure, and wind patterns
-  \item \textbf{Example Insight}: How extreme weather events influence migration patterns or habitat usage
-\end{itemize}
-
-\paragraph{Satellite Imagery}
-\begin{itemize}
-  \item \textbf{Source}: Sentinel, Landsat, or commercial satellite providers
-  \item \textbf{Enhanced Analytics}: Correlating animal movements with vegetation indices, water availability, and land cover changes
-  \item \textbf{Example Insight}: How seasonal vegetation changes influence foraging patterns
-\end{itemize}
-
-\paragraph{Human Activity Data}
-\begin{itemize}
-  \item \textbf{Source}: Tourism records, road traffic counters, park management systems
-  \item \textbf{Enhanced Analytics}: Assessing the impact of tourist presence and vehicle movements on wildlife behavior
-  \item \textbf{Example Insight}: Optimal visitor management strategies that minimize wildlife disturbance
-\end{itemize}
-
-\paragraph{Historical Research Data}
-\begin{itemize}
-  \item \textbf{Source}: Previous studies, published research, long-term monitoring programs
-  \item \textbf{Enhanced Analytics}: Comparing current behavioral patterns with historical baselines
-  \item \textbf{Example Insight}: Long-term trends in habitat utilization and adaptation to environmental changes
-\end{itemize}
-
-\subsection{System Scalability}
-
-\subsubsection{Scaling Dimensions}
-Our system must scale across several dimensions:
-
-\paragraph{Device Scaling}
-As the number of tracked animals and vehicles increases, the system must accommodate more sensor devices:
-
-\begin{itemize}
-  \item \textbf{LoRaWAN Capacity}: Each gateway can handle thousands of devices, with network capacity managed through adaptive data rates and transmission scheduling.
-  \item \textbf{Device Management}: Automated provisioning, configuration, and firmware update systems ensure efficient management of large device fleets.
-  \item \textbf{Battery Replacement Strategy}: Tracking battery status and scheduling maintenance operations to minimize disruption to animals and research.
-\end{itemize}
-
-\paragraph{Geographic Scaling}
-Extending monitoring to new areas or parks:
-
-\begin{itemize}
-  \item \textbf{Modular Gateway Deployment}: Standardized gateway configurations allow rapid deployment in new areas.
-  \item \textbf{Regional Servers}: For global scaling, regional processing centers can be established to minimize latency and comply with data sovereignty requirements.
-  \item \textbf{Adaptive Coverage}: Analyzing signal strength maps to optimize gateway placement for maximum coverage.
-\end{itemize}
-
-\paragraph{User Scaling}
-Supporting increased numbers of researchers, park managers, and other stakeholders:
-
-\begin{itemize}
-  \item \textbf{Role-Based Access Control}: Granular permissions ensure users can access only relevant data.
-  \item \textbf{Multi-Tenant Architecture}: Logical separation of data and computing resources per organization or research group.
-  \item \textbf{API Rate Limiting}: Ensuring fair resource utilization across increasing user numbers.
-\end{itemize}
-
-\paragraph{Data Volume Scaling}
-Managing growing historical datasets:
-
-\begin{itemize}
-  \item \textbf{Data Tiering}: Automatic migration of older data to lower-cost storage.
-  \item \textbf{Aggregation Strategies}: Pre-computing aggregates at different time scales to maintain query performance.
-  \item \textbf{Distributed Storage}: Sharding and partitioning strategies for the time-series database.
-\end{itemize}
-
-\subsubsection{Potential Bottlenecks and Solutions}
-
-\paragraph{Network Bandwidth}
-\begin{itemize}
-  \item \textbf{Bottleneck}: Limited backhaul connectivity from remote gateway locations
-  \item \textbf{Solution}: 
-    \begin{itemize}
-      \item Implement store-and-forward mechanisms at gateways during connectivity interruptions
-      \item Prioritize traffic based on urgency and importance
-      \item Deploy edge computing capabilities at gateway locations to reduce backhaul requirements
-    \end{itemize}
-\end{itemize}
-
-\paragraph{Battery Life}
-\begin{itemize}
-  \item \textbf{Bottleneck}: Increased sensing or transmission frequency could deplete batteries
-  \item \textbf{Solution}:
-    \begin{itemize}
-      \item Implement dynamic power management based on activity levels
-      \item Further optimize solar harvesting with better panel positioning
-      \item Develop AI models that extract more information from fewer sensor readings
-    \end{itemize}
-\end{itemize}
-
-\paragraph{Data Processing}
-\begin{itemize}
-  \item \textbf{Bottleneck}: Complex analytics becoming compute-intensive as data volumes grow
-  \item \textbf{Solution}:
-    \begin{itemize}
-      \item Implement auto-scaling cloud resources based on processing demand
-      \item Develop incremental processing algorithms that update existing results rather than reprocessing all data
-      \item Use distributed processing frameworks (e.g., Apache Spark) for large-scale batch analytics
-    \end{itemize}
-\end{itemize}
-
-\paragraph{Maintenance Logistics}
-\begin{itemize}
-  \item \textbf{Bottleneck}: Physical access to devices on wild animals presents unique challenges
-  \item \textbf{Solution}:
-    \begin{itemize}
-      \item Design collars with automatic release mechanisms triggered remotely when battery replacement is needed
-      \item Implement predictive maintenance to schedule interventions during routine research activities
-      \item Maximize component lifecycle through aggressive power management
-    \end{itemize}
-\end{itemize}
+Based on the insights we can decide on some ratings for the parks. We could use the data to build a health score based on movement patterns and air quality. The health score could be used to tell the park staff if they need to do a more thorough health check on specific animals or if they need to take action to improve the air quality in the park. 
+We could build a risk assessment based on predictive health analytics. By analyzing historical data, we can identify patterns that precede health issues, allowing us to proactively monitor at-risk animals before they show symptoms.
 
 \subsection{Conclusion}
-The proposed monitoring system architecture provides a comprehensive solution for wildlife tracking and environmental monitoring in the two safari parks. By combining edge processing with cloud analytics, the system balances power efficiency with sophisticated analytical capabilities. The scalable design ensures the system can grow to accommodate increased numbers of tracked animals, expanded geographic coverage, and more complex analytics over time. Integration with external data sources further enhances the system's value for research and park management purposes.
+The proposed monitoring system leverages hourly data collection to create a practical, energy-efficient solution for wildlife tracking. By focusing on what's achievable with periodic rather than continuous monitoring, we create a system that's both feasible to deploy in remote environments and capable of generating valuable insights for research and park management.
 
