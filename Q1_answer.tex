@@ -62,9 +62,11 @@ The module supports a temperature range from -40 °C to +85 °C, which is ideal 
 
 For communication, the RAK3172 supports frequency ranges from 150 MHz to 960 MHz with a bandwidth from 7.8 kHz to 500 kHz, appropriate for long-distance, low-power transmission required in large wildlife parks. It supports multiple regional bands including EU433, CN470, RU864, IN865, EU868, AU915, US915, KR920, and AS923, making it deployable in both Denmark and Kenya with the appropriate regional settings.
 
-A plus for the RAK3172 is the low power consumption of just 1.69 $\mu$A in sleep mode, which is critical for our battery life requirements. The module includes 256 KB flash memory with ECC (Error Correction Code) and 64 KB RAM, providing sufficient storage for our sensor data and communication protocols.
+A plus for the RAK3172 is the low power consumption of just 1.69 $\mu$A in sleep mode, which is critical for our battery life requirements. In operation i would assume it would draw around 10 mA for processing and communication tasks, which is manageable within our power budget. The module includes 256 KB flash memory with ECC (Error Correction Code) and 64 KB RAM, providing sufficient storage for our sensor data and communication protocols.
 
 For our application, we would use this microcontroller to collect data from the sensors (GPS, accelerometer, and particulate matter sensor), process the data, and transmit it over LoRaWAN to a base station.
+
+As we want to at least be sure we can send data 1km, we will set the LoRa transmission power to 14 dBm, which is the maximum allowed in the EU868 band. This will allow us to achieve a range of up to 10 km in open areas, which is more than sufficient for our needs in both wildlife parks.
 
 \subsubsection{Power supply}
 The device will be powered by a rechargeable lithium-ion battery. The battery should be able to provide power for at least 0.5 years of operation.
@@ -104,10 +106,30 @@ To account for battery self-discharge, temperature effects, and capacity degrada
 &= 811.29\text{mAh} \approx 800\text{mAh}
 \end{align*}
 
-Therefore, a 600mAh lithium-ion battery would be sufficient for our application. However, to provide additional reliability and to account for potential harsh operating conditions in wildlife environments, we would recommend using a 1000mAh battery, which provides extra margin while still maintaining a reasonable size and weight.
+Therefore, a 600mAh lithium-ion battery would be sufficient for our application. However, to provide additional reliability and to account for potential harsh operating conditions in wildlife environments, we would recommend using a 1000mAh battery, which provides extra margin while still maintaining a reasonable size and weight. % todo figure out why it is so low
 
 For additional power supply, we can consider energy harvesting. 
 A small solar panel rated at approximately 0.5W (measuring around 50mm × 50mm) would be sufficient to recharge the battery during daylight hours. With an average of just 1-2 hours of effective sunlight per day, this would provide enough additional energy to significantly extend the battery life beyond the required 6 months. 
 
 A potential issue would be that the device is not always exposed to sunlight, especially in the case of animals that might cover the cell from the sun with their body, fur or dirt. However, the generously-sized battery should compensate for periods without solar charging. The combination of a 1000mAh battery with solar recharging would likely enable the device to operate for well over a year in most deployment scenarios, and potentially indefinitely in locations with good sun exposure.
 
+\subsection{Device enclosure}
+To protect the device from environmental conditions, we can use an enclosure that is rated at least IP67. This means that the enclosure is dust-tight and can withstand immersion in water up to 1 meter for 30 minutes. The enclosure should also be able to withstand extreme temperatures, so we can use a material that can withstand temperatures from -40 to +85 degrees Celsius. We still need to allow air to get through the enclosure to allow the particulate matter sensor to do its work. A suitable material for the enclosure could be polycarbonate or ABS plastic, which are both durable and can withstand extreme temperatures. The enclosure should also be small enough to be attached to the animals without causing discomfort.
+
+All the components we have selected would cover and area of about:
+
+\begin{itemize}
+  \item ADXL345: 3mm x 5mm x 1mm
+  \item BMV080: 4.2mm x 3mm x 3.5mm
+  \item u-blox MIA-M10: 4.5mm x 4.5mm x 1mm
+  \item RAK3172: 15mm x 15.5mm x 3.5mm
+  \item Battery: 30mm x 20mm x 5mm (assuming a small lithium-ion battery)
+  \item Solar panel: 50mm x 50mm x 2mm (assuming a small solar panel)
+\end{itemize}
+
+The total area of the components would be approximately:
+\begin{align*}
+\text{Total area} &= (3 \times 5 \times 1) + (4.2 \times 3 \times 3.5) + (4.5 \times 4.5 \times 1) + (15 \times 15.5 \times 3.5) + (30 \times 20 \times 5) + (50 \times 50 \times 2)\\
+&= 15 + 44.1 + 20.25 + 817.5 + 3000 + 5000 \\
+&= 8856.85 \text{ mm}^3
+\end{align*}
